@@ -2,8 +2,9 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
+from datetime import datetime
 
 from model import connect_to_db, db
 from server import app
@@ -37,9 +38,71 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
+    print "Movies"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Movie.query.delete()
+
+    # Read u.user file and insert data
+    for row in open("seed_data/u.item"):
+        # striped the whitespace
+        row = row.rstrip()
+        # print "each row!", row
+        # we took the row and split it on the pipe
+        row_split = row.split("|")
+        # print "it's splitted!!", row_split
+        # sliced the giant list into only 0-4 index
+        first_five = row_split[:5]
+        # print "this is our short list", first_five
+        # unpacked the first five items from the u.item list
+        movie_id, title, released_at, empty, imdb_url = first_five
+        # print first_five
+        #Boolean if released at is not an empty string evaluates true 
+        #set string to datetime object
+        # else make datetime equal none if no value is present in release at
+        if released_at:
+            released_at = datetime.strptime(released_at, "%d-%b-%Y")
+        else:
+            released_at = None
+
+        movie = Movie(movie_id=movie_id,
+                    title=title,
+                    released_at=released_at,
+                    imdb_url=imdb_url)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(movie)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
+
+
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Ratings"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Rating.query.delete()
+
+    # Read u.user file and insert data
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        rating_id, movie_id, user_id, score = row.split("")
+
+        rating = Rating(rating_id=rating_id,
+                    movie_id=movie_id,
+                    user_id=user_id,
+                    score=score)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(rating)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
 
 
 def set_val_user_id():
