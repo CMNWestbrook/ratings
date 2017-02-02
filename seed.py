@@ -66,6 +66,8 @@ def load_movies():
         else:
             released_at = None
 
+        title = title[:-7] # (year) ==7
+
         movie = Movie(movie_id=movie_id,
                     title=title,
                     released_at=released_at,
@@ -76,7 +78,6 @@ def load_movies():
 
     # Once we're done, we should commit our work
     db.session.commit()
-
 
 
 def load_ratings():
@@ -90,13 +91,15 @@ def load_ratings():
 
     # Read u.user file and insert data
     for row in open("seed_data/u.data"):
-        row = row.rstrip()
-        rating_id, movie_id, user_id, score = row.split("")
+        row = row.strip().split()
 
-        rating = Rating(rating_id=rating_id,
-                    movie_id=movie_id,
-                    user_id=user_id,
-                    score=score)
+        movie_id, user_id, score, time_stamp = row
+        # print row
+
+        rating = Rating(
+                    movie_id=int(movie_id),
+                    user_id=int(user_id),
+                    score=int(score))
 
         # We need to add to the session or it won't ever be stored
         db.session.add(rating)
