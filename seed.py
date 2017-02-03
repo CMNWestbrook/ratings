@@ -93,12 +93,12 @@ def load_ratings():
     for row in open("seed_data/u.data"):
         row = row.strip().split()
 
-        movie_id, user_id, score, time_stamp = row
+        user_id, movie_id, score, time_stamp = row
         # print row
 
         rating = Rating(
-                    movie_id=int(movie_id),
                     user_id=int(user_id),
+                    movie_id=int(movie_id),
                     score=int(score))
 
         # We need to add to the session or it won't ever be stored
